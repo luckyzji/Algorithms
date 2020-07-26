@@ -63,6 +63,48 @@ public class Solution {
         return new int[2];
     }
 
+    //326. 3的幂  换底公式
+    public boolean isPowerOfThree(int n) {
+        double t=Math.log10(n)/Math.log10(3);
+        return t%1==0;
+    }
+    /*public boolean isPowerOfThree(int n) {
+        if(n==0)return false;
+        while(n%3==0){
+            n/=3;
+        }
+        return n==1;
+    }*/
+
+    //410. 分割数组的最大值 二分查找  最小的最大值一定在maxnum 和 sum之间 通过二分，找到使得子数组和最小的最大值
+    public int splitArray(int[] nums, int m) {
+        int r=0;
+        int l=nums[0];
+        int len = nums.length;
+        for (int i = 0; i < len; i++) {
+            r+=nums[i];
+            if(nums[i]>l)l=nums[i];
+        }
+        while(l<r){
+            int mid =l+(r-l)/2;
+            int cnt=0;
+            int cursum=0;
+            for (int i = 0; i < len; i++) {
+                if(cursum+nums[i]>mid) {
+                    cursum = nums[i];
+                    cnt++;
+                }
+                else{
+                    cursum+=nums[i];
+                }
+            }
+            cnt++;
+            if(cnt>m)l=mid+1;
+            else r=mid;
+        }
+        return l;
+    }
+
     //1025. 除数博弈
     /*
     最终结果应该是占到 2 的赢，占到 1 的输
