@@ -1,5 +1,6 @@
 package leetcode;
 
+
 public class Solution {
     //9. 回文数
     public boolean isPalindrome(int x) {
@@ -31,6 +32,11 @@ public class Solution {
             }
         }
         return dp[m-1][n-1];
+    }
+
+    //104. 二叉树的最大深度 递归
+    public int maxDepth(TreeNode root) {
+        return root==null?0:Math.max(maxDepth(root.left),maxDepth(root.right))+1;
     }
 
     //96. 不同的二叉搜索树dp
@@ -75,6 +81,51 @@ public class Solution {
         }
         return n==1;
     }*/
+
+    //329. 矩阵中的最长递增路径
+    /*
+    DFS
+     */
+    public int longestIncreasingPath(int[][] matrix) {
+        int row =matrix.length;
+        if(row==0)return 0;
+        int column = matrix[0].length;
+        if(column==0)return 0;
+        int res=1;
+        int help[][] = new int[row][column];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < column; j++) {
+                res = Math.max(res ,dfs(matrix,help,i,j));
+            }
+        }
+        return res;
+    }
+    public int dfs(int matrix[][], int help[][],int r,int c){
+        if(help[r][c]>0)return help[r][c];
+        int d[]= {0,1,0,-1,0};//四个方向增量 如(0,1),(-1,0)
+        int row =matrix.length;
+        int column = matrix[0].length;
+        int ans=1;
+        for (int i = 0; i < 4; i++) {
+            int nextr=r+d[i],nextc=c+d[i+1];//下一个点 四个方向增量 如(0,1),(-1,0)
+            if(nextr<0||nextc<0||nextr>=row||nextc>=column)continue;
+            if(matrix[r][c]>=matrix[nextr][nextc])continue;
+            ans=Math.max(ans,1+dfs(matrix,help,nextr,nextc));
+        }
+        help[r][c]=ans;
+        return ans;
+    }
+
+    //392. 判断子序列  双指针
+    public boolean isSubsequence(String s, String t) {
+        int slen=s.length();
+        int tlen=t.length();
+        int j=0;
+        for (int i = 0; i < tlen; i++) {
+            if(slen>j&&t.charAt(i)==s.charAt(j))j++;
+        }
+        return j==slen;
+    }
 
     //410. 分割数组的最大值 二分查找  最小的最大值一定在maxnum 和 sum之间 通过二分，找到使得子数组和最小的最大值
     public int splitArray(int[] nums, int m) {
@@ -131,7 +182,10 @@ public class Solution {
         }
         return dp[N];
     }*/
-
-
-
+}
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) { val = x; }
 }
