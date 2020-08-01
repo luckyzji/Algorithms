@@ -1,5 +1,8 @@
 package leetcode;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class Solution {
     //9. 回文数
@@ -154,6 +157,61 @@ public class Solution {
             else r=mid;
         }
         return l;
+    }
+
+    //632. 最小区间 从 k 个列表中各取一个数，使得这 k 个数中的最大值与最小值的差最小。
+    // 优先队列、堆  小顶堆维护当前最小值指针索引  同时curMax找到当前最大值
+    public int[] smallestRange(List<List<Integer>> nums) {
+        int k = nums.size();
+        int p[]=new int[k];
+        int maxNum,minRange,minNum;
+        PriorityQueue<Integer> minQueue = new PriorityQueue<>(new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return nums.get(o1).get(p[o1])-nums.get(o2).get(p[o2]);
+            }
+        });
+        maxNum = nums.get(0).get(0);
+        for (int i = 0; i < k; i++) {
+            minQueue.offer(i);
+            maxNum = Math.max(maxNum,nums.get(i).get(0));
+        }
+        minNum = nums.get(minQueue.peek()).get(p[minQueue.peek()]);
+        minRange = maxNum-minNum;
+        int curMaxNum = maxNum;
+        while(true){
+            int minIndex= minQueue.poll();
+            int curRange=curMaxNum-nums.get(minIndex).get(p[minIndex]);
+            if(curRange<minRange){//curRange小才更新最小值区间
+                minRange =curRange;
+                minNum = nums.get(minIndex).get(p[minIndex]);
+                maxNum = curMaxNum;
+            }
+            p[minIndex]++;//当前最小值指针后移
+            if(p[minIndex]==nums.get(minIndex).size()) break;//当某一列表到末尾时退出
+            minQueue.offer(minIndex);//更新当前最小最小值指针
+            curMaxNum = Math.max(curMaxNum,nums.get(minIndex).get(p[minIndex]));
+        }
+        return new int[]{minNum,maxNum};
+    }
+
+    //988. 从叶结点开始的最小字符串
+    String smallestFromLeafRes="";
+    public String smallestFromLeaf(TreeNode root) {
+        smallestFromLeafDFS(new StringBuffer(),root);
+        return smallestFromLeafRes;
+    }
+    public void smallestFromLeafDFS(StringBuffer str, TreeNode node){
+        if(node==null)return ;
+        str.append((char)('a'+node.val));
+        if(node.left==null&&node.right==null){
+            String s=str.reverse().toString();
+            if(s.compareTo(smallestFromLeafRes)<0||smallestFromLeafRes=="") smallestFromLeafRes=s;
+            str.reverse();
+        }
+        smallestFromLeafDFS(str,node.left);
+        smallestFromLeafDFS(str,node.right);
+        str.deleteCharAt(str.length()-1);
     }
 
     //1025. 除数博弈
