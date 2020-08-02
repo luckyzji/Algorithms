@@ -59,6 +59,26 @@ public class Solution {
         return dp[n];
     }
 
+    //114. 二叉树展开为链表
+    public void flatten(TreeNode root) {
+        TreeNode curNode = root;
+        while(curNode!=null){
+            if(curNode.left==null){
+                curNode=curNode.right;
+            }
+            else{
+                TreeNode preNode=curNode.left;
+                while(preNode.right!=null){
+                    preNode=preNode.right;
+                }
+                preNode.right=curNode.right;
+                curNode.right=curNode.left;
+                curNode.left=null;
+            }
+        }
+    }
+
+
     //167. 两数之和 II - 输入有序数组 双指针
     public int[] twoSum(int[] numbers, int target) {
         int left=0;
@@ -157,6 +177,23 @@ public class Solution {
             else r=mid;
         }
         return l;
+    }
+
+    //415 字符串相加
+    public String addStrings(String num1, String num2) {
+        StringBuffer res = new StringBuffer();
+        int i=num1.length()-1;
+        int j=num2.length()-1;
+        int car=0;
+        int temp;
+        while(i>=0||j>=0||car!=0){
+            int n1=i>=0?num1.charAt(i--)-'0':0;
+            int n2=j>=0?num2.charAt(j--)-'0':0;
+            temp=n1+n2+car;
+            car=temp/10;
+            res.append(temp%10);
+        }
+        return res.reverse().toString();
     }
 
     //632. 最小区间 从 k 个列表中各取一个数，使得这 k 个数中的最大值与最小值的差最小。
