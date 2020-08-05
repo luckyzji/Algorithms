@@ -1,8 +1,6 @@
 package leetcode;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class Solution {
     //9. 回文数
@@ -78,6 +76,34 @@ public class Solution {
         }
     }
 
+    //124. 二叉树中的最大路径和
+    /* 最大路径和可能来自三种情况：
+     * 1、来自左树的最大路径和
+     * 2、来自右树的最大路径和
+     * 3、左树到当前节点的最大路径+右树到当前节点的最大路+当前节点的值    注意有负数的情况
+     */
+    public int maxPathSum(TreeNode root) {
+        return getMaxPathSum(root).MaxPathSum;
+    }
+    public ReturnInfo getMaxPathSum(TreeNode node){
+        if(node==null){
+            return new ReturnInfo(0, Integer.MIN_VALUE);
+        }
+         ReturnInfo left = getMaxPathSum(node.left);
+         ReturnInfo right = getMaxPathSum(node.right);
+
+         int curHeightPath=left.curHeightMaxPath>right.curHeightMaxPath?left.curHeightMaxPath:right.curHeightMaxPath;
+         return new ReturnInfo((curHeightPath>0?curHeightPath:0)+node.val,
+                 Math.max(Math.max(left.MaxPathSum,right.MaxPathSum),(left.curHeightMaxPath>0?left.curHeightMaxPath:0)+(right.curHeightMaxPath>0?right.curHeightMaxPath:0)+node.val));
+    }
+    public static class ReturnInfo{
+        int curHeightMaxPath;
+        int MaxPathSum;
+        public ReturnInfo(int curHeightMaxPath, int MaxPathSum) {
+            this.curHeightMaxPath = curHeightMaxPath;
+            this.MaxPathSum = MaxPathSum;
+        }
+    }
 
     //167. 两数之和 II - 输入有序数组 双指针
     public int[] twoSum(int[] numbers, int target) {
@@ -137,6 +163,28 @@ public class Solution {
         }
         help[r][c]=ans;
         return ans;
+    }
+
+    //337. 打家劫舍 III  暴力递归
+    HashMap<TreeNode,Integer> robmap = new HashMap<>();
+    HashMap<TreeNode ,Integer> norobmap = new HashMap<>();
+    public int rob(TreeNode root) {
+
+        return Math.max(robprocess(root,true),robprocess(root,false));
+    }
+    public int robprocess(TreeNode node ,boolean flag ){//flag标记当前节点是被偷盗
+        if(node == null) return 0;
+        if(flag){//被偷盗，则左右子节点不能被盗
+            if(!robmap.containsKey(node)){//判断当前节点被盗的最大值。
+                robmap.put(node,node.val+robprocess(node.left,false)+robprocess(node.right,false));
+            }
+            return robmap.get(node);
+        }
+        else{//没被偷盗，从左右子节点中，选出被盗或没被盗的情况相加
+            if(!norobmap.containsKey(node))
+                norobmap.put(node,Math.max(robprocess(node.right,true),robprocess(node.right,false))+Math.max(robprocess(node.left,true),robprocess(node.left,false)));
+            return norobmap.get(node);
+        }
     }
 
     //392. 判断子序列  双指针
@@ -249,6 +297,20 @@ public class Solution {
         smallestFromLeafDFS(str,node.left);
         smallestFromLeafDFS(str,node.right);
         str.deleteCharAt(str.length()-1);
+    }
+
+    //989. 数组形式的整数加法
+    public List<Integer> addToArrayForm(int[] A, int K) {
+        LinkedList<Integer> res = new LinkedList<>();
+        int car = 0;
+        int i=A.length-1;
+        while(i>=0||car!=0||K!=0) {
+            int temp = i<0?car+K%10:A[i--]+car+K%10;
+            car = temp/10;
+            res.addFirst(temp%10);
+            K/=10;
+        }
+        return res;
     }
 
     //1025. 除数博弈
