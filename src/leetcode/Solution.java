@@ -14,6 +14,66 @@ public class Solution {
         }
         return cur==x;
     }
+
+    //20. 有效的括号
+    public boolean isValid(String s) {
+
+        Stack<Character> stack = new Stack<>();
+        int len = s.length();
+        if(len%2!=0)return false;
+        for (int i = 0; i < len; i++) {
+            if(s.charAt(i)=='('||s.charAt(i)=='['||s.charAt(i)=='{'){
+                stack.push(s.charAt(i));
+            }
+            else if(!stack.isEmpty()){
+                if(s.charAt(i)==')'&&stack.peek()=='('){
+                    stack.pop();
+                }else if(s.charAt(i)==']'&&stack.peek()=='['){
+                    stack.pop();
+                }
+                else if(s.charAt(i)=='}'&&stack.peek()=='{'){
+                    stack.pop();
+                }
+                else{
+                    return false;
+                }
+            }
+            else{
+                return false;
+            }
+
+        }
+        return stack.isEmpty();
+    }
+
+    //43. 字符串相乘  模拟
+    public String multiply(String num1, String num2) {
+        if("0".equals(num1)||"0".equals(num2))return "0";
+        int len1=num1.length();
+        int len2=num2.length();
+        StringBuffer res = new StringBuffer();
+        for (int i = len1-1,k=0; i >=0; i--,k++) {
+            if(num1.charAt(i)=='0'){//当前为0时 在末尾加0；
+                res.append('0');
+                continue;
+            }
+            int car=0;
+            for (int j = len2-1; j >= 0; j--) {
+                int cur = (num1.charAt(i)-'0')*(num2.charAt(j)-'0')+car;
+                if(k+len2-1-j>=res.length()){
+                    res.append(cur%10);
+                }
+                else{
+                    cur+=res.charAt(k+len2-1-j)-'0';
+                    res.setCharAt(k+len2-1-j,(char) (cur%10+'0'));
+                }
+                car=cur/10;
+            }
+            if(car!=0)res.append(car);
+        }
+        return res.reverse().toString();
+    }
+
     //64. 最小路径和
     //dp[i][j]=Math.min(dp[i-1][j],dp[i][j-1])+grid[i][j];
     public int minPathSum(int[][] grid) {
@@ -34,6 +94,41 @@ public class Solution {
         }
         return dp[m-1][n-1];
     }
+
+    //93. 复原IP地址
+    public List<String> restoreIpAddresses(String s) {
+        List<String> resList  =new ArrayList<>();
+        if(s.length()<4)return resList;
+        int len=s.length();
+        for (int i = 1; i <4 ; i++) {
+            String s1=s.substring(0,i);
+            if(s1.charAt(0)=='0'&&s1.length()>1)break;
+            if(Integer.parseInt(s1)<=255){
+                for (int j = i+1; j <=i+3 ; j++) {
+                    if(j>len)break;
+                    String s2 = s.substring(i,j);
+                    if(s2.charAt(0)=='0'&&s2.length()>1)break;
+                    if(Integer.parseInt(s2)<=255){
+                        for (int k = j+1; k <=j+3 ; k++) {
+                            if(k>=len)break;
+                            String s3=s.substring(j,k);
+                            //System.out.println(s1+" "+s2+" "+s3);
+                            if(s3.charAt(0)=='0'&&s3.length()>1)break;
+                            String s4=s.substring(k,len);
+                            if(s4.charAt(0)=='0'&&s4.length()>1||s4.length()>3)continue;
+                            //System.out.println(s1+" "+s2+" "+s3+" "+s4);
+                            if(s3.length()!=0&&s4.length()!=0&&Integer.parseInt(s3)<=255&&Integer.parseInt(s4)<=255){
+                                resList.add(s1+"."+s2+"."+s3+"."+s4);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return resList;
+    }
+
 
     //104. 二叉树的最大深度 递归
     public int maxDepth(TreeNode root) {
@@ -105,6 +200,34 @@ public class Solution {
         }
     }
 
+    //130. 被围绕的区域  对外围的一圈进行DFS把直接或间接与边界O相连的O先用一个字符代换(#) 然后把遍历把没有替换的O改为X 把#改回O
+    public void solve(char[][] board) {
+        int m= board.length-1;
+        int n = board[0].length-1;
+        for (int i = 0; i <=m; i++) {
+            solveDFS(board,i,0);
+            solveDFS(board,i,n);
+        }
+        for (int i = 0; i <= n; i++) {
+            solveDFS(board,0,i);
+            solveDFS(board,m,i);
+        }
+        for (int i = 0; i <=m ; i++) {
+            for (int j = 0; j <=n; j++) {
+                if(board[i][j]=='O')board[i][j]='X';
+                else if(board[i][j]=='#')board[i][j]='O';
+            }
+        }
+    }
+    public void solveDFS(char[][] board, int x,int y){
+        if(x>=board.length||x<0||y>=board[0].length||y<0||board[x][y]!='O')return;
+        board[x][y]='#';
+        solveDFS(board,x+1,y);
+        solveDFS(board,x-1,y);
+        solveDFS(board,x,y+1);
+        solveDFS(board,x,y-1);
+    }
+
     //167. 两数之和 II - 输入有序数组 双指针
     public int[] twoSum(int[] numbers, int target) {
         int left=0;
@@ -165,14 +288,16 @@ public class Solution {
         return ans;
     }
 
-    //337. 打家劫舍 III  暴力递归
+    //337. 打家劫舍 III  暴力递归  树形DP
     HashMap<TreeNode,Integer> robmap = new HashMap<>();
     HashMap<TreeNode ,Integer> norobmap = new HashMap<>();
     public int rob(TreeNode root) {
-
-        return Math.max(robprocess(root,true),robprocess(root,false));
+        if(root==null)return 0;
+        robprocess(root,true);
+        robprocess(root,false);
+        return Math.max(robmap.get(root),norobmap.get(root));
     }
-    public int robprocess(TreeNode node ,boolean flag ){//flag标记当前节点是被偷盗
+    public int robprocess(TreeNode node ,boolean flag ){//flag标记当前节点是否被偷盗
         if(node == null) return 0;
         if(flag){//被偷盗，则左右子节点不能被盗
             if(!robmap.containsKey(node)){//判断当前节点被盗的最大值。
@@ -278,6 +403,50 @@ public class Solution {
             curMaxNum = Math.max(curMaxNum,nums.get(minIndex).get(p[minIndex]));
         }
         return new int[]{minNum,maxNum};
+    }
+
+    //696. 计数二进制子串 双指针从中间向外扩
+    public int countBinarySubstrings(String s) {
+        int count=0;
+        int len=s.length();
+        for (int i = 0; i < s.length() - 1; i++) {
+            int t1=i,t2=i+1;
+            if(s.charAt(t1)!=s.charAt(t2)){
+                t1--;
+                t2++;
+                count++;
+                while(t1>=0&&t2<len&&s.charAt(t1)!=s.charAt(t2)&&s.charAt(t2)==s.charAt(t2-1)){
+                    count++;
+                    t1--;
+                    t2++;
+                }
+                i=t2-2;//加速计算，i+1到t2这一区间都是相同的，不用计算
+            }
+        }
+        return count;
+    }
+
+    //733. 图像渲染 dfs
+    int div[]=new int[]{0,1,0,-1,0};
+    int color;
+    int newColor;
+    public int[][] floodFill(int[][] image, int sr, int sc, int newColor) {
+        color=image[sr][sc];
+        this.newColor=newColor;
+        if(color!=newColor)//不判断会发生死循环
+            floodFillDfs(image,sr,sc);
+        return image;
+    }
+    public void floodFillDfs(int[][] image,int sr,int sc){
+        if(sr>=image.length||sc>=image[0].length||sc<0||sr<0)return;
+        if(image[sr][sc]==color){
+            image[sr][sc]=newColor;
+            for(int i=0;i<4;i++){
+                //System.out.println((sr+div[i])+" "+(sc+div[i+1]));
+                floodFillDfs(image,sr+div[i],sc+div[i+1]);
+            }
+        }
+
     }
 
     //988. 从叶结点开始的最小字符串
